@@ -1,32 +1,24 @@
 # Labels applied automatically by actions/labeler@v5.
 # Matching uses glob patterns; any matching file in the PR triggers the label.
-# Manually-applied labels (bug, feature, breaking-change, etc.) are not listed here.
+# Manually-applied labels (type, priority, needs, blocked, etc.) are not listed here.
 
-backend:
+"area: backend":
   - changed-files:
     - any-glob-to-any-file: ["backend/**"]
 
-web:
+"area: web":
   - changed-files:
     - any-glob-to-any-file: ["web/**"]
 
-mobile:
+"area: mobile":
   - changed-files:
     - any-glob-to-any-file: ["mobile/**"]
 
-documentation:
-  - changed-files:
-    - any-glob-to-any-file:
-      - "**/*.md"
-      - "backend/docs/**"
-      - "web/docs/**"
-      - "mobile/docs/**"
-
-ci:
+"area: infra":
   - changed-files:
     - any-glob-to-any-file: [".github/**"]
 
-dependencies:
+"type: chore":
   - changed-files:
     - any-glob-to-any-file:
       - "backend/go.mod"
