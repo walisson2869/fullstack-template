@@ -1,0 +1,38 @@
+# Labels applied automatically by actions/labeler@v5.
+# Matching uses glob patterns; any matching file in the PR triggers the label.
+# Manually-applied labels (bug, feature, breaking-change, etc.) are not listed here.
+
+backend:
+  - changed-files:
+    - any-glob-to-any-file: ["backend/**"]
+
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: ["frontend/**"]
+
+mobile:
+  - changed-files:
+    - any-glob-to-any-file: ["mobile/**"]
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.md"
+      - "backend/docs/**"
+      - "frontend/docs/**"
+      - "mobile/docs/**"
+
+ci:
+  - changed-files:
+    - any-glob-to-any-file: [".github/**"]
+
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file:
+      - "backend/go.mod"
+      - "backend/go.sum"
+      - "frontend/package.json"
+      - "frontend/pnpm-lock.yaml"
+      - "mobile/gradle/libs.versions.toml"
+      - "mobile/build.gradle.kts"
+      - "mobile/app/build.gradle.kts"
