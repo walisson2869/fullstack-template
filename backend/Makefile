@@ -5,13 +5,12 @@ all: build test
 
 build:
 	@echo "Building..."
-	
-	
 	@go build -o main.exe cmd/api/main.go
 
 # Run the application
 run:
 	@go run cmd/api/main.go
+
 # Create DB container
 docker-run:
 	@docker compose up --build
@@ -24,7 +23,8 @@ docker-down:
 test:
 	@echo "Testing..."
 	@go test ./... -v
-# Integrations Tests for the application
+
+# Integration tests (requires Docker)
 itest:
 	@echo "Running integration tests..."
 	@go test ./internal/repository/postgres/... -v
@@ -46,4 +46,32 @@ watch:
 		Write-Output 'Watching...'; \
 	}"
 
-.PHONY: all build run test clean watch docker-run docker-down itest
+# ---- Migrations (goose) ----
+
+migrate-up:
+	@go run ./cmd/migrate up
+
+migrate-up-one:
+	@go run ./cmd/migrate up-by-one
+
+migrate-down:
+	@go run ./cmd/migrate down
+
+migrate-down-to:
+	@go run ./cmd/migrate down-to $(version)
+
+migrate-reset:
+	@go run ./cmd/migrate down-to 0
+
+migrate-status:
+	@go run ./cmd/migrate status
+
+migrate-version:
+	@go run ./cmd/migrate version
+
+migrate-create:
+	@go run ./cmd/migrate create $(name)
+
+.PHONY: all build run test clean watch docker-run docker-down itest \
+        migrate-up migrate-up-one migrate-down migrate-down-to migrate-reset \
+        migrate-status migrate-version migrate-create
