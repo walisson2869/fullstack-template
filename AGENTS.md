@@ -34,12 +34,16 @@ cd mobile && ./gradlew installDebug       # build and install on connected devic
 
 ## Testing
 
+**TDD is required.** Write failing tests first, then implement.
+
 ```bash
 # Backend (Docker must be running)
 cd backend && make test         # unit + integration
 cd backend && make itest        # integration only
 
 # Web
+cd web && pnpm test             # Vitest unit + component tests
+cd web && pnpm test:watch       # watch mode during development
 cd web && pnpm lint
 cd web && pnpm build
 
@@ -49,7 +53,9 @@ cd mobile && ./gradlew test                  # unit tests (no device needed)
 cd mobile && ./gradlew connectedAndroidTest  # instrumented tests (emulator/device required)
 ```
 
-All backend DB tests use **Testcontainers** (real PostgreSQL). Never mock the database.
+- Backend DB and cache tests use **Testcontainers** (real PostgreSQL, real Redis). Never mock the database.
+- Web unit/component tests use **Vitest + @testing-library/react**. Server Component flows use Playwright (future).
+- Mobile Composable tests use **Compose test rules** in instrumented tests.
 
 ---
 
@@ -93,6 +99,7 @@ All backend DB tests use **Testcontainers** (real PostgreSQL). Never mock the da
 ## PR instructions
 
 - Branch from `main` — no direct pushes to `main`
-- Run `make test` (backend), `pnpm lint && pnpm build` (web), and `./gradlew lint && ./gradlew test` (mobile) before opening a PR
+- Before opening a PR, all tests must pass: `make test` (backend), `pnpm test && pnpm lint && pnpm build` (web), `./gradlew lint && ./gradlew test` (mobile)
+- No new feature without tests — every route, component, utility, use case, and Composable must ship with tests
 - One logical change per PR
 - PR title: concise description of what changed, not implementation details

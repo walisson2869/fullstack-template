@@ -11,4 +11,4 @@ Topic-based documentation for the Android app. Each file is kept in sync with th
 |---|---|---|
 | Jetpack Compose UI conventions | `compose-conventions.md` | `app/src/main/java/com/company/template/MainActivity.kt`, `ui/theme/` |
 | Activity and Compose architecture | `architecture.md` | `app/src/main/java/com/company/template/MainActivity.kt`, `app/build.gradle.kts` |
-| Testing patterns | `testing.md` | `app/src/test/`, `app/src/androidTest/` |
+| Testing patterns | `testing.md` | `app/src/test/java/com/company/template/GreetingFormatTest.kt`, `app/src/androidTest/java/com/company/template/GreetingTest.kt`, `app/build.gradle.kts` |

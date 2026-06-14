@@ -9,3 +9,4 @@ The `docs` agent reads this index first to locate the right file.
 | Data fetching patterns | [data-fetching.md](data-fetching.md) | `app/page.tsx`, `app/layout.tsx` |
 | Styling with Tailwind CSS v4 | [styling.md](styling.md) | `app/globals.css`, `postcss.config.mjs` |
 | Component conventions | [components.md](components.md) | `app/` (all component files) |
+| Testing patterns | [testing.md](testing.md) | `vitest.config.ts`, `vitest.setup.ts`, `__tests__/page.test.tsx` |

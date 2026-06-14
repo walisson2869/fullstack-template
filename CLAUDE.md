@@ -18,6 +18,8 @@ cd web && pnpm dev              # web dev → :3000
 cd backend && make test         # all tests
 cd backend && make itest        # integration tests only (requires Docker)
 cd web && pnpm lint && pnpm build
+cd web && pnpm test             # Vitest unit + component tests
+cd web && pnpm test:watch       # watch mode during TDD
 
 cd mobile && ./gradlew assembleDebug          # build Android APK
 cd mobile && ./gradlew lint && ./gradlew test # mobile quality gate
@@ -39,9 +41,10 @@ make migrate-version              # print current schema version
 1. **Check docs first** — delegate to `docs` agent: find relevant topic docs, verify they match the current code
 2. **Fix stale docs** — if docs diverge from code, update docs before implementing
 3. **Migrate** — if the feature needs new or changed tables: `make migrate-create name=<slug>`, write the SQL, `make migrate-up`
-4. **Implement** — delegate to `backend` or `web` agent, passing the relevant doc content as context
-5. **Update docs** — delegate to `docs` agent: update `last_verified`, add new topics if introduced
-6. **Quality gate** — run `/project:check` before declaring done
+4. **Write tests first (TDD)** — write failing tests that describe the intended behaviour before writing any implementation code
+5. **Implement** — delegate to `backend` or `web` agent, passing the relevant doc content as context; implementation is complete when all tests pass
+6. **Update docs** — delegate to `docs` agent: update `last_verified`, add new topics if introduced
+7. **Quality gate** — run `/project:check` before declaring done
 
 Use `/project:implement` to run this workflow end-to-end.
 
@@ -162,11 +165,31 @@ cd backend && make swagger   # regenerate docs/swagger/ after annotation changes
 - Accept `modifier: Modifier = Modifier` as the last defaulted parameter in all public Composables.
 
 ## Testing — non-negotiable
-- **Never mock the database.** Always use Testcontainers.
-- Follow the `TestMain` + `mustStartPostgresContainer()` pattern in `internal/infrastructure/database/postgres/health_repository_test.go`.
-- DB integration tests live in `internal/infrastructure/database/postgres/` (`package postgres`).
-- Handler unit tests live in `internal/transport/handlers/` and may use mock use cases — that is not mocking the database.
-- Docker must be running for integration tests.
+
+**Test-Driven Development is the required approach.** Write failing tests first; make them pass; then refactor.
+
+### Backend (Go)
+- **Never mock the database.** Always use Testcontainers (real PostgreSQL, real Redis).
+- Follow the `TestMain` + `mustStartPostgresContainer()` pattern from `internal/infrastructure/database/postgres/health_repository_test.go`.
+- DB/cache integration tests live in their respective `infrastructure/` package.
+- Handler unit tests live in `internal/transport/handlers/` and may use mock use case interfaces — that is not mocking the database.
+- Usecase unit tests live in `internal/usecase/` and mock the repository interface (not the database).
+- Docker must be running for any integration test.
+- See `backend/docs/testing.md` for full patterns.
+
+### Web (Next.js)
+- **Unit/component tests:** Vitest + `@testing-library/react` with `jsdom` environment. Run with `pnpm test`.
+- **Client Components:** test with `render()` + `screen` assertions.
+- **Server Components and full-page flows:** test end-to-end with Playwright (future work; not yet set up).
+- New utility functions in `lib/` **must** have Vitest unit tests.
+- New Client Components **must** have rendering tests.
+- See `web/docs/testing.md` for full setup and patterns.
+
+### Mobile (Android)
+- **Unit tests** (`src/test/`): JUnit 4, JVM only, no Android framework. For pure Kotlin logic and ViewModels.
+- **Instrumented tests** (`src/androidTest/`): JUnit 4 + Compose test rules (`createComposeRule()`). For Composables and Activity-level tests.
+- Every new public `@Composable` function must have a corresponding instrumented test.
+- See `mobile/docs/testing.md` for full patterns.
 
 ## Hard rules (hooks enforce some of these)
 - No secrets in committed files.
@@ -175,3 +198,4 @@ cd backend && make swagger   # regenerate docs/swagger/ after annotation changes
 - No `"use client"` without a concrete browser requirement.
 - No database mocks in tests.
 - No `any` in TypeScript.
+- **No new feature without tests.** Every new route, component, utility function, use case, and Composable must ship with tests.

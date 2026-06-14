@@ -93,9 +93,30 @@ mobile/
 
 ## Testing
 
-- Unit tests (`src/test/`): JUnit 4, no Android framework. Run with `./gradlew test`.
-- Instrumented tests (`src/androidTest/`): JUnit 4 + Espresso + Compose test rules. Run with `./gradlew connectedAndroidTest` — requires a running emulator or connected device.
-- No mocking of the Android framework — use `InstrumentationRegistry` for context in instrumented tests.
+**TDD is required.** Write failing tests first, then implement.
+
+- **Unit tests** (`src/test/`): JUnit 4, JVM only. Use for pure Kotlin logic and ViewModels. Run with `./gradlew test`.
+- **Instrumented tests** (`src/androidTest/`): JUnit 4 + Compose test rules. Use for Composables and Activity-level tests. Run with `./gradlew connectedAndroidTest` — requires a running emulator or connected device.
+- No mocking of the Android framework — use `InstrumentationRegistry` for context.
+- Every new public `@Composable` function must have a corresponding instrumented test.
+
+```kotlin
+// Composable instrumented test pattern
+@RunWith(AndroidJUnit4::class)
+class GreetingTest {
+    @get:Rule val composeTestRule = createComposeRule()
+
+    @Test
+    fun greeting_displaysName() {
+        composeTestRule.setContent {
+            TemplateTheme { Greeting(name = "World") }
+        }
+        composeTestRule.onNodeWithText("Hello World!").assertIsDisplayed()
+    }
+}
+```
+
+See [`docs/testing.md`](docs/testing.md) for the full pattern and conventions.
 
 ---
 

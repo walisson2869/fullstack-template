@@ -9,11 +9,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Commands
 
 ```bash
-pnpm install    # install dependencies
-pnpm dev        # dev server → http://localhost:3000
-pnpm build      # production build (also runs TypeScript check)
-pnpm start      # serve production build
-pnpm lint       # ESLint
+pnpm install      # install dependencies
+pnpm dev          # dev server → http://localhost:3000
+pnpm build        # production build (also runs TypeScript check)
+pnpm start        # serve production build
+pnpm lint         # ESLint
+pnpm test         # Vitest — unit + component tests
+pnpm test:watch   # Vitest watch mode (use during TDD)
+pnpm test:ui      # Vitest browser UI
 ```
 
 ---
@@ -43,19 +46,51 @@ Read the relevant doc before implementing. These are kept in sync with the code 
 | Server Components, data fetching, Server Actions | [`docs/data-fetching.md`](docs/data-fetching.md) |
 | Tailwind CSS v4, theme tokens, dark mode | [`docs/styling.md`](docs/styling.md) |
 | Component conventions, TypeScript rules | [`docs/components.md`](docs/components.md) |
+| Testing setup, patterns, what to test | [`docs/testing.md`](docs/testing.md) |
 
 ---
 
 ## Testing instructions
 
-No component test suite yet. Quality gate is lint + build:
+**TDD is required.** Write failing tests first, then implement.
 
-```bash
-pnpm lint     # must pass — no ESLint errors
-pnpm build    # must pass — no TypeScript errors, no build failures
+### Framework
+- **Vitest** + **@testing-library/react** + **jsdom** for unit and component tests.
+- `next/image` and other Next.js built-ins are aliased to lightweight mocks in `vitest.config.ts`.
+- Server Component rendering requires Playwright E2E (not yet set up) — test logic separately.
+
+### What to test
+- All functions in `lib/` must have Vitest unit tests.
+- All Client Components (`"use client"`) must have render tests.
+- Server Components: extract and test any logic; rendering is covered by E2E.
+
+### Patterns
+```tsx
+// Component test
+import { render, screen } from '@testing-library/react'
+import MyButton from '@/components/MyButton'
+
+it('renders label', () => {
+  render(<MyButton label="Save" />)
+  expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
+})
+
+// Utility test
+import { formatDate } from '@/lib/format'
+
+it('formats ISO date', () => {
+  expect(formatDate('2026-01-15')).toBe('Jan 15, 2026')
+})
 ```
 
-Both must pass before committing or opening a PR.
+### Quality gate — all must pass before committing
+```bash
+pnpm test     # no failing tests
+pnpm lint     # no ESLint errors
+pnpm build    # no TypeScript errors, no build failures
+```
+
+See [`docs/testing.md`](docs/testing.md) for full setup details and conventions.
 
 ---
 
