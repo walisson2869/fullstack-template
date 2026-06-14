@@ -70,7 +70,7 @@ migrate-version:
 	@go run ./cmd/migrate version
 
 migrate-create:
-	@go run ./cmd/migrate create $(name) sql
+	@go run ./cmd/migrate create $(name)
 
 .PHONY: all build run test clean watch docker-run docker-down itest \
         migrate-up migrate-up-one migrate-down migrate-down-to migrate-reset \
