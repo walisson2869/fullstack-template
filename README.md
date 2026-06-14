@@ -1,6 +1,6 @@
 # Fullstack Template
 
-A production-ready fullstack starter. Clone it, rename things, and focus on your business logic — the infrastructure is already wired. Ships with a Go + Gin backend, Next.js 16 frontend, PostgreSQL, Docker Compose, hot reload, integration testing, and a full agentic development setup for AI coding assistants.
+A production-ready fullstack starter. Clone it, rename things, and focus on your business logic — the infrastructure is already wired. Ships with a Go + Gin backend, Next.js 16 frontend, Android mobile app (Kotlin + Compose), PostgreSQL, Docker Compose, hot reload, integration testing, and a full agentic development setup for AI coding assistants.
 
 ## Table of Contents
 
@@ -22,25 +22,27 @@ A production-ready fullstack starter. Clone it, rename things, and focus on your
 
 - **Go backend** with Gin, structured into clean `cmd/` and `internal/` layers
 - **Next.js 16 frontend** with React 19, TypeScript, and Tailwind CSS 4
+- **Android mobile app** with Kotlin 2.2, Jetpack Compose BOM 2026.02, and Material3
 - **PostgreSQL** database managed via Docker Compose
 - **Hot reload** on both frontend (`next dev`) and backend ([Air](https://github.com/air-verse/air))
 - **Integration tests** using [Testcontainers](https://testcontainers.com/) — no mocks, real DB
 - **CORS** pre-configured between frontend and backend
 - **`.env` support** via `godotenv`
 - **Makefile** for common backend tasks
-- **Agentic infrastructure** — AGENTS.md, CLAUDE.md, topic docs, subagents, hooks, and slash commands ready out of the box
+- **Agentic infrastructure** — AGENTS.md, CLAUDE.md, topic docs, subagents, hooks, and slash commands ready out of the box for all three layers
 
 ## Tech Stack
 
-| Layer     | Technology                          |
-|-----------|-------------------------------------|
-| Frontend  | Next.js 16, React 19, TypeScript    |
-| Styling   | Tailwind CSS 4                      |
-| Backend   | Go, Gin                             |
-| Database  | PostgreSQL 16 (via Docker)          |
-| DB Driver | pgx v5 (standard library style)     |
-| Dev Tools | Air (hot reload), pnpm, Docker      |
-| Testing   | Go test, Testcontainers             |
+| Layer     | Technology                                          |
+|-----------|-----------------------------------------------------|
+| Frontend  | Next.js 16, React 19, TypeScript                    |
+| Styling   | Tailwind CSS 4                                      |
+| Backend   | Go, Gin                                             |
+| Database  | PostgreSQL 16 (via Docker)                          |
+| DB Driver | pgx v5 (standard library style)                     |
+| Mobile    | Android, Kotlin 2.2, Jetpack Compose, Material3     |
+| Dev Tools | Air (hot reload), pnpm, Docker, Gradle 9.4          |
+| Testing   | Go test, Testcontainers, JUnit 4, Espresso          |
 
 ## Getting Started
 
@@ -49,6 +51,7 @@ A production-ready fullstack starter. Clone it, rename things, and focus on your
 - [Go 1.21+](https://go.dev/dl/)
 - [Node.js 20+](https://nodejs.org/) and [pnpm](https://pnpm.io/installation)
 - [Docker](https://www.docker.com/) and Docker Compose
+- [Android Studio Meerkat (2024.3+)](https://developer.android.com/studio) with Android SDK API 36 and JDK 17 (for mobile)
 
 ### Installation
 
@@ -72,6 +75,14 @@ cd frontend
 pnpm install
 ```
 
+**Mobile:**
+
+Open `mobile/` in Android Studio. The Gradle wrapper handles all SDK downloads. Alternatively:
+
+```bash
+cd mobile && ./gradlew assembleDebug
+```
+
 ### Running the App
 
 **1. Start the database:**
@@ -92,6 +103,14 @@ cd backend && make watch   # hot reload via Air
 ```bash
 cd frontend && pnpm dev
 ```
+
+**4. Run the mobile app** — connect a device or start an emulator, then:
+
+```bash
+cd mobile && ./gradlew installDebug
+```
+
+Or run directly from Android Studio.
 
 Frontend: `http://localhost:3000` — Backend API: `http://localhost:8080`
 
@@ -121,17 +140,29 @@ fullstack-template/
 │   ├── .env
 │   ├── docker-compose.yml
 │   └── Makefile
-└── frontend/
-    ├── AGENTS.md                # Frontend agent instructions
-    ├── docs/                    # Topic docs: routing, data-fetching, styling, components
+├── frontend/
+│   ├── AGENTS.md                # Frontend agent instructions
+│   ├── docs/                    # Topic docs: routing, data-fetching, styling, components
+│   ├── app/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   └── globals.css
+│   ├── public/
+│   ├── next.config.ts
+│   ├── package.json
+│   └── tsconfig.json
+└── mobile/
+    ├── AGENTS.md                # Mobile agent instructions
+    ├── docs/                    # Topic docs: compose-conventions, architecture, testing
     ├── app/
-    │   ├── layout.tsx
-    │   ├── page.tsx
-    │   └── globals.css
-    ├── public/
-    ├── next.config.ts
-    ├── package.json
-    └── tsconfig.json
+    │   ├── build.gradle.kts     # App dependencies and build config
+    │   └── src/main/java/com/company/template/
+    │       ├── MainActivity.kt  # Single entry point
+    │       └── ui/theme/        # Color, Theme, Type (Material3)
+    ├── gradle/
+    │   └── libs.versions.toml   # Version catalog
+    ├── build.gradle.kts
+    └── settings.gradle.kts
 ```
 
 ## Environment Variables
@@ -173,6 +204,19 @@ pnpm start   # serve production build
 pnpm lint    # run ESLint
 ```
 
+### Mobile Gradle commands
+
+```bash
+./gradlew assembleDebug         # compile debug APK
+./gradlew installDebug          # build and install on connected device/emulator
+./gradlew lint                  # run Android lint
+./gradlew test                  # run unit tests (no device needed)
+./gradlew connectedAndroidTest  # run instrumented tests (device/emulator required)
+./gradlew clean                 # clean build outputs
+```
+
+On Windows outside Git Bash, use `.\gradlew.bat` instead of `./gradlew`.
+
 ## Testing
 
 Backend tests use [Testcontainers](https://testcontainers.com/) to spin up a real PostgreSQL instance — no mocking the database layer.
@@ -184,6 +228,14 @@ make itest   # integration tests only
 ```
 
 Docker must be running for integration tests.
+
+Mobile has two test tiers:
+
+```bash
+cd mobile
+./gradlew test                   # unit tests — runs on JVM, no device needed
+./gradlew connectedAndroidTest   # instrumented tests — requires emulator or device
+```
 
 ## Working with AI Agents
 
@@ -198,8 +250,9 @@ A layered `AGENTS.md` system follows the [AGENTS.md open standard](https://agent
 | [`AGENTS.md`](AGENTS.md) | Project overview, setup, cross-cutting conventions, security |
 | [`backend/AGENTS.md`](backend/AGENTS.md) | Go commands, project structure, links to topic docs |
 | [`frontend/AGENTS.md`](frontend/AGENTS.md) | pnpm commands, Next.js conventions, links to topic docs |
+| [`mobile/AGENTS.md`](mobile/AGENTS.md) | Gradle commands, Android conventions, links to topic docs |
 
-Topic-specific documentation lives in `backend/docs/` and `frontend/docs/`. Each file is kept in sync with the source code it describes and includes `last_verified` metadata so agents can detect when it may be stale.
+Topic-specific documentation lives in `backend/docs/`, `frontend/docs/`, and `mobile/docs/`. Each file is kept in sync with the source code it describes and includes `last_verified` metadata so agents can detect when it may be stale.
 
 ### For Claude Code
 
@@ -208,13 +261,13 @@ Additional infrastructure in `.claude/` provides a deeper integration:
 | Path | Purpose |
 |---|---|
 | [`CLAUDE.md`](CLAUDE.md) | Feature development workflow, all conventions |
-| `.claude/agents/` | Specialized subagents: `backend`, `frontend`, `reviewer`, `db-explorer`, `docs` |
+| `.claude/agents/` | Specialized subagents: `backend`, `frontend`, `mobile`, `reviewer`, `db-explorer`, `docs` |
 | `.claude/commands/` | Slash commands: `/project:implement`, `/project:check`, `/project:test`, `/project:new-route` |
 | `.claude/hooks/` | Auto-formats Go and TypeScript files on save; blocks dangerous commands |
 
 The recommended workflow for any implementation:
 
-1. Check the relevant topic doc in `backend/docs/` or `frontend/docs/` before writing code
+1. Check the relevant topic doc in `backend/docs/`, `frontend/docs/`, or `mobile/docs/` before writing code
 2. Implement against documented patterns rather than general training data
 3. Update the doc file after implementation so the next agent session starts with accurate context
 

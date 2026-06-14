@@ -68,6 +68,9 @@ Feature suggestions are welcome. Open an issue with:
 
    # Frontend
    cd frontend && pnpm lint && pnpm build
+
+   # Mobile
+   cd mobile && ./gradlew lint && ./gradlew test
    ```
 
 6. **Open your pull request** against `main`. Fill in the PR template including:
@@ -92,6 +95,9 @@ cd backend && make watch
 
 # Frontend (hot reload)
 cd frontend && pnpm dev
+
+# Mobile — open mobile/ in Android Studio, or build via Gradle
+cd mobile && ./gradlew assembleDebug
 ```
 
 ## Keeping Documentation Current
@@ -104,13 +110,16 @@ This project uses topic-based documentation in `backend/docs/` and `frontend/doc
 |---|---|
 | DB queries, connection setup, or the `Service` interface | `backend/docs/database.md` |
 | Routes, handlers, or CORS config | `backend/docs/routing.md` |
-| Test setup or testing patterns | `backend/docs/testing.md` |
+| Test setup or testing patterns (backend) | `backend/docs/testing.md` |
 | Error handling conventions | `backend/docs/error-handling.md` |
 | Environment variables | `backend/docs/environment.md` |
 | App Router structure or route files | `frontend/docs/routing.md` |
 | Data fetching or Server Actions | `frontend/docs/data-fetching.md` |
 | Tailwind or CSS conventions | `frontend/docs/styling.md` |
 | Component patterns or TypeScript conventions | `frontend/docs/components.md` |
+| Composable conventions, theme, or Material3 usage | `mobile/docs/compose-conventions.md` |
+| Activity setup, lifecycle, or ViewModel pattern | `mobile/docs/architecture.md` |
+| Test setup or testing patterns (mobile) | `mobile/docs/testing.md` |
 
 ### How to update a doc
 
@@ -119,7 +128,7 @@ This project uses topic-based documentation in `backend/docs/` and `frontend/doc
 3. Update the `sources` list if you added or removed source files.
 4. If you introduce a new topic that isn't covered, create a new doc file and add it to the relevant `_index.md`.
 
-The `AGENTS.md` files at the root, `backend/`, and `frontend/` are entry points for AI agents — update them if you change project-level setup commands, tooling, or structure.
+The `AGENTS.md` files at the root, `backend/`, `frontend/`, and `mobile/` are entry points for AI agents — update them if you change project-level setup commands, tooling, or structure.
 
 ## Style Guidelines
 
@@ -136,6 +145,14 @@ The `AGENTS.md` files at the root, `backend/`, and `frontend/` are entry points 
 - Follow the existing ESLint configuration.
 - Prefer server components by default; use client components only when interactivity is required.
 - Co-locate component-specific styles with the component.
+
+### Kotlin/Compose (mobile)
+
+- Single Activity — no new Activities or Fragments.
+- Keep `@Composable` functions stateless; hoist state to a ViewModel.
+- Use Material3 (`androidx.compose.material3`) only.
+- Declare all dependency versions in `mobile/gradle/libs.versions.toml`.
+- Add `@Preview(showBackground = true)` to every public Composable.
 
 ### General
 
@@ -169,5 +186,6 @@ Examples:
 ```
 feat(backend): add JWT authentication middleware
 fix(frontend): correct layout shift on mobile viewport
+feat(mobile): add profile screen with Material3 card layout
 docs: add environment variable table to README
 ```

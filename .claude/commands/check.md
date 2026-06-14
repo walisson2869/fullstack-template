@@ -1,4 +1,4 @@
-Run a full quality gate across both backend and frontend. Report pass/fail for each step. Stop on the first critical failure.
+Run a full quality gate across backend, frontend, and mobile. Report pass/fail for each step. Stop on the first critical failure.
 
 ## Backend
 ```bash
@@ -12,6 +12,14 @@ cd frontend && pnpm lint
 cd frontend && pnpm build
 ```
 
+## Mobile
+```bash
+cd mobile && ./gradlew lint
+cd mobile && ./gradlew test
+```
+
+Note: `./gradlew connectedAndroidTest` (instrumented tests) is excluded from the standard gate because it requires a running emulator or device. Run it explicitly when testing Android UI or integration behavior.
+
 Show all output for failing steps. For each failure, identify the root cause and suggest a fix — but do not apply fixes without confirmation.
 
 End with a summary table:
@@ -22,3 +30,5 @@ End with a summary table:
 | backend tests | ✓ / ✗ |
 | pnpm lint | ✓ / ✗ |
 | pnpm build | ✓ / ✗ |
+| mobile lint | ✓ / ✗ |
+| mobile unit tests | ✓ / ✗ |
