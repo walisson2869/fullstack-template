@@ -50,16 +50,28 @@ Read the relevant doc before implementing. These are kept in sync with the code 
 
 ## Testing instructions
 
-All database tests run against a **real PostgreSQL instance** via Testcontainers. Docker must be running.
+**TDD is required.** Write failing tests first, then implement.
+
+All database and cache tests run against **real instances** via Testcontainers. Docker must be running.
 
 ```bash
-make test     # unit + integration
-make itest    # integration only
-go test ./internal/database -v -run TestHealth   # single test
+make test          # unit + integration (requires Docker)
+make itest         # integration only
+go test ./internal/usecase/... -v               # usecase unit tests (no Docker needed)
+go test ./internal/transport/handlers/... -v    # handler unit tests (no Docker needed)
+go test ./internal/infrastructure/... -v        # DB + cache integration tests (requires Docker)
 ```
 
-Adding a new test: follow the `TestMain` + `mustStartPostgresContainer()` pattern in `internal/database/database_test.go`.
-Use table-driven tests for multiple input cases.
+### Test placement
+| Layer | Package | What is mocked |
+|---|---|---|
+| `usecase/` | `package usecase` | Repository interfaces (not the DB) |
+| `transport/handlers/` | `package handlers` | Use case interfaces |
+| `infrastructure/database/postgres/` | `package postgres` | Nothing — real DB via Testcontainers |
+| `infrastructure/cache/redis/` | `package redis` | Nothing — real Redis via Testcontainers |
+| `bootstrap/` | `package bootstrap` | Pinger interface; env vars via `t.Setenv` |
+
+See `backend/docs/testing.md` for full patterns including `TestMain`, table-driven tests, and mock examples.
 
 ---
 
