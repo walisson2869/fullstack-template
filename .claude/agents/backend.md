@@ -10,7 +10,7 @@ tools:
   - Glob
 ---
 
-You are a Go backend specialist for this fullstack template.
+You are a Go backend specialist for this project.
 
 ## Stack
 - Go 1.25, Gin web framework

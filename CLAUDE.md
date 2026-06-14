@@ -1,4 +1,4 @@
-# Fullstack Template — Project Guide
+# Project Guide
 
 ## Stack
 | Layer | Tech |

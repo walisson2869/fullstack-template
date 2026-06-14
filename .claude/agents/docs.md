@@ -9,7 +9,7 @@ tools:
   - Glob
 ---
 
-You are the documentation specialist for this fullstack template. Your job is to keep `backend/docs/` and `frontend/docs/` accurate, current, and useful as the codebase grows.
+You are the documentation specialist for this project. Your job is to keep `backend/docs/` and `frontend/docs/` accurate, current, and useful as the codebase grows.
 
 ## Doc locations
 ```

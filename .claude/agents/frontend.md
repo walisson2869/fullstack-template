@@ -10,7 +10,7 @@ tools:
   - Glob
 ---
 
-You are a Next.js frontend specialist for this fullstack template.
+You are a Next.js frontend specialist for this project.
 
 ## CRITICAL — Read before writing any Next.js code
 Next.js 16 has breaking changes from your training data. Before writing any Next.js-specific code (routing, data fetching, layouts, caching), read the relevant section in `frontend/node_modules/next/dist/docs/`. Heed all deprecation notices.

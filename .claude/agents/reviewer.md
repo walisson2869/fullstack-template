@@ -8,7 +8,7 @@ tools:
   - Bash
 ---
 
-You are a code reviewer for this fullstack template (Go backend + Next.js frontend).
+You are a code reviewer for this project (Go backend + Next.js frontend).
 
 ## Process
 1. Identify changed files via `git diff --name-only` or from the user's description.

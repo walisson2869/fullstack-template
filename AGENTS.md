@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Fullstack template — Go + Gin backend, Next.js 16 + React 19 frontend, PostgreSQL.
+Fullstack project — Go + Gin backend, Next.js 16 + React 19 frontend, PostgreSQL.
 
 Each layer has its own `AGENTS.md` and `docs/` folder. Read the file closest to what you are editing:
 - `backend/AGENTS.md` + `backend/docs/` — Go API
