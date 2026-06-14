@@ -6,7 +6,8 @@
 | Frontend | Next.js 16, React 19, TypeScript 5, Tailwind CSS 4 |
 | Backend | Go 1.25, Gin, `database/sql` + pgx v5 stdlib |
 | Database | PostgreSQL 16 via Docker Compose |
-| Dev tools | pnpm, Air (Go hot reload), Testcontainers |
+| Mobile | Android, Kotlin 2.2, Jetpack Compose BOM 2026.02, Material3 |
+| Dev tools | pnpm, Air (Go hot reload), Testcontainers, Gradle 9.4 |
 
 ## Run commands
 ```bash
@@ -17,6 +18,10 @@ cd frontend && pnpm dev         # frontend dev → :3000
 cd backend && make test         # all tests
 cd backend && make itest        # integration tests only (requires Docker)
 cd frontend && pnpm lint && pnpm build
+
+cd mobile && ./gradlew assembleDebug          # build Android APK
+cd mobile && ./gradlew lint && ./gradlew test # mobile quality gate
+cd mobile && ./gradlew connectedAndroidTest   # instrumented tests (emulator/device required)
 ```
 
 ## Feature development workflow — always follow this
@@ -32,13 +37,15 @@ Use `/project:implement` to run this workflow end-to-end.
 ```
 backend/docs/    # database, routing, testing, error-handling, environment
 frontend/docs/   # routing, data-fetching, styling, components
+mobile/docs/     # compose-conventions, architecture, testing
 ```
 Each doc file has `last_verified` and `sources` frontmatter. The `docs` agent maintains these.
 
 ## Available subagents — delegate to these
 - **`backend`** — Go/Gin/PostgreSQL tasks
 - **`frontend`** — Next.js/React/TypeScript tasks
-- **`reviewer`** — pre-commit code review across both layers
+- **`mobile`** — Android/Kotlin/Jetpack Compose tasks
+- **`reviewer`** — pre-commit code review across all layers
 - **`db-explorer`** — read-only DB schema and query analysis
 - **`docs`** — documentation check, update, and creation
 
@@ -63,6 +70,12 @@ backend/
 frontend/
   app/                          # Next.js App Router
   CLAUDE.md → AGENTS.md         # frontend-specific rules (read before writing Next.js)
+mobile/
+  app/src/main/java/com/company/template/
+    MainActivity.kt             # single entry point, Compose root
+    ui/theme/                   # Color, Theme, Type (Material3)
+  gradle/libs.versions.toml     # version catalog — all versions declared here
+  CLAUDE.md → AGENTS.md         # mobile-specific rules (read before writing Kotlin/Compose)
 ```
 
 ## Go conventions
@@ -78,6 +91,14 @@ frontend/
 - Tailwind v4 for all styles — no CSS modules, no inline styles.
 - No `any`. Use proper interfaces or `unknown`.
 - Shared components → `components/`, utilities → `lib/`, types → `types/`.
+
+## Kotlin/Compose conventions
+- Single Activity only. All navigation is Compose-based — no Fragments.
+- No logic in `@Composable` functions — hoist state to ViewModel or the calling composable.
+- Use Material3 (`androidx.compose.material3`) — not the older M2 `material` package.
+- Theme tokens only — use `MaterialTheme.colorScheme.*` and `MaterialTheme.typography.*`; never hardcode colors in screens.
+- All dependency versions declared in `mobile/gradle/libs.versions.toml`.
+- Accept `modifier: Modifier = Modifier` as the last defaulted parameter in all public Composables.
 
 ## Testing — non-negotiable
 - **Never mock the database.** Always use Testcontainers.
