@@ -93,7 +93,7 @@ cd backend && make docker-run
 # Backend (hot reload)
 cd backend && make watch
 
-# Frontend (hot reload)
+# Web (hot reload)
 cd web && pnpm dev
 
 # Mobile — open mobile/ in Android Studio, or build via Gradle
