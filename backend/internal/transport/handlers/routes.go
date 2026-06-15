@@ -13,7 +13,8 @@ import (
 )
 
 // RegisterRoutes creates the Gin engine, applies middleware, and registers all routes.
-func (h *Handler) RegisterRoutes() http.Handler {
+// rps and burst configure IP-based rate limiting; pass rps<=0 to disable.
+func (h *Handler) RegisterRoutes(rps float64, burst int) http.Handler {
 	r := gin.New()
 
 	// Use Gin's colorful logger locally; structured slog logger in staging/production.
@@ -22,6 +23,8 @@ func (h *Handler) RegisterRoutes() http.Handler {
 	} else {
 		r.Use(gin.Recovery(), middleware.Logger())
 	}
+
+	r.Use(middleware.RateLimit(rps, burst))
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},

@@ -40,10 +40,12 @@ type App struct {
 
 // Config holds all validated configuration values read from environment variables.
 type Config struct {
-	Port     int
-	Env      string
-	DB       postgres.DBConfig
-	RedisURL string
+	Port           int
+	Env            string
+	DB             postgres.DBConfig
+	RedisURL       string
+	RateLimitRPS   float64
+	RateLimitBurst int
 }
 
 // ConfigError is returned when required configuration is absent or invalid.
@@ -125,10 +127,18 @@ func loadConfig() Config {
 		sslMode = "disable"
 	}
 
+	rps, _ := strconv.ParseFloat(os.Getenv("RATE_LIMIT_RPS"), 64)
+	burst, _ := strconv.Atoi(os.Getenv("RATE_LIMIT_BURST"))
+	if burst == 0 && rps > 0 {
+		burst = int(rps) * 5
+	}
+
 	return Config{
-		Port:     port,
-		Env:      os.Getenv("ENV"),
-		RedisURL: os.Getenv("REDIS_URL"),
+		Port:           port,
+		Env:            os.Getenv("ENV"),
+		RedisURL:       os.Getenv("REDIS_URL"),
+		RateLimitRPS:   rps,
+		RateLimitBurst: burst,
 		DB: postgres.DBConfig{
 			Host:     os.Getenv("BLUEPRINT_DB_HOST"),
 			Port:     os.Getenv("BLUEPRINT_DB_PORT"),
