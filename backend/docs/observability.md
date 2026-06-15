@@ -63,7 +63,7 @@ Stored on `Config.SentryDSN`. Not validated — an empty value disables Sentry w
 ## Supplying the DSN
 
 **Local development** — add to `backend/.env`:
-```
+```dotenv
 SENTRY_DSN=https://<key>@o<org>.ingest.sentry.io/<project>
 ```
 

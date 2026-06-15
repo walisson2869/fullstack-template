@@ -38,7 +38,7 @@ h := handlers.NewHandler(healthUC)
 
 return &http.Server{
     Addr:         fmt.Sprintf(":%d", app.Config.Port),
-    Handler:      h.RegisterRoutes(app.Config.RateLimitRPS, app.Config.RateLimitBurst, app.Firebase),
+    Handler:      h.RegisterRoutes(app.Config.RateLimitRPS, app.Config.RateLimitBurst, app.Firebase, app.Config.SentryDSN),
     IdleTimeout:  time.Minute,
     ReadTimeout:  10 * time.Second,
     WriteTimeout: 30 * time.Second,
@@ -51,7 +51,7 @@ All routes registered in `RegisterRoutes()` on `*Handler`, which returns `http.H
 `verifier` is a `usecase.FirebaseTokenVerifier`; pass `nil` to skip Firebase auth (development only — see [auth](auth.md)).
 
 ```go
-func (h *Handler) RegisterRoutes(rps float64, burst int, verifier usecase.FirebaseTokenVerifier) http.Handler {
+func (h *Handler) RegisterRoutes(rps float64, burst int, verifier usecase.FirebaseTokenVerifier, sentryDSN string) http.Handler {
     r := gin.New()
 
     // Gin's colorful logger locally; structured slog logger in staging/production.

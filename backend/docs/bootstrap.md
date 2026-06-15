@@ -35,6 +35,7 @@ type Config struct {
     RateLimitBurst             int
     FirebaseProjectID          string
     FirebaseServiceAccountJSON string
+    SentryDSN                  string
 }
 ```
 `loadConfig()` reads all values from environment variables. `PORT` defaults to `8080`; `BLUEPRINT_DB_SCHEMA` defaults to `public`; `BLUEPRINT_DB_SSLMODE` defaults to `disable`. `RateLimitBurst` is derived as `int(RPS)*5` when omitted and RPS is set. Optional fields (`RedisURL`, `FirebaseProjectID`, `FirebaseServiceAccountJSON`) default to empty string — their respective services are skipped when empty.

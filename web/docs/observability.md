@@ -6,7 +6,7 @@ sources:
   - sentry.server.config.ts
   - sentry.edge.config.ts
   - next.config.ts
-  - .env.local.example
+  - .env.example
 ---
 
 # Observability
@@ -45,12 +45,10 @@ Next.js picks up each file automatically based on the execution context — no m
 
 The `NEXT_PUBLIC_` prefix makes the value available in the browser bundle. When the variable is absent or empty, `Sentry.init` is a no-op.
 
-**Local development** — add to `web/.env.local`:
-```
+**Local development** — copy `web/.env.example` to `web/.env.local` and fill in your DSN:
+```dotenv
 NEXT_PUBLIC_SENTRY_DSN=https://<key>@o<org>.ingest.sentry.io/<project>
 ```
-
-`web/.env.local.example` documents this with an empty placeholder.
 
 **Production** — set `NEXT_PUBLIC_SENTRY_DSN` in your deployment platform's environment configuration.
 
