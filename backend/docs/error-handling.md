@@ -1,9 +1,9 @@
 ---
 topic: error-handling
-last_verified: 2026-06-14
+last_verified: 2026-06-15
 sources:
-  - internal/repository/postgres/health_repository.go
-  - internal/handler/health_handler.go
+  - internal/infrastructure/database/postgres/health_repository.go
+  - internal/transport/handlers/health_handler.go
   - cmd/api/main.go
 ---
 
@@ -85,4 +85,4 @@ if err := c.ShouldBindJSON(&input); err != nil {
 Use `fmt.Errorf("context: %w", err)` when adding context to returned errors so callers can use `errors.Is` / `errors.As`.
 
 ## Panic recovery
-`gin.Default()` includes the Recovery middleware — panics in handlers are recovered and return 500. Do not rely on this; handle errors explicitly.
+`gin.Recovery()` is applied explicitly in `RegisterRoutes()` — panics in handlers are recovered and return 500. Do not rely on this; handle errors explicitly.

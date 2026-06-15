@@ -1,10 +1,10 @@
 ---
 topic: environment
-last_verified: 2026-06-14
+last_verified: 2026-06-15
 sources:
   - .env
   - internal/bootstrap/bootstrap.go
-  - internal/repository/postgres/db.go
+  - internal/infrastructure/database/postgres/db.go
 ---
 
 # Environment Variables
@@ -21,7 +21,7 @@ This runs on package init before any env var is read — no explicit `godotenv.L
 | Variable | Used in | Default | Description |
 |---|---|---|---|
 | `PORT` | `bootstrap.go` | `8080` | HTTP server listen port |
-| `APP_ENV` | `bootstrap.go` | — | Environment name (`local`, `production`) |
+| `ENV` | `bootstrap.go` | — | Environment name (`local`, `production`) |
 | `BLUEPRINT_DB_HOST` | `bootstrap.go` | — | Postgres host (**required**) |
 | `BLUEPRINT_DB_PORT` | `bootstrap.go` | — | Postgres port (**required**) |
 | `BLUEPRINT_DB_DATABASE` | `bootstrap.go` | — | Database name (**required**) |
@@ -29,6 +29,8 @@ This runs on package init before any env var is read — no explicit `godotenv.L
 | `BLUEPRINT_DB_PASSWORD` | `bootstrap.go` | — | Postgres password (**required**) |
 | `BLUEPRINT_DB_SCHEMA` | `bootstrap.go` | `public` | Postgres search_path schema |
 | `BLUEPRINT_DB_SSLMODE` | `bootstrap.go` | `disable` | Postgres SSL mode (`disable`, `require`, `verify-full`) |
+| `RATE_LIMIT_RPS` | `bootstrap.go` | `0` (disabled) | Max requests per second per IP. Set to `0` or omit to disable rate limiting. |
+| `RATE_LIMIT_BURST` | `bootstrap.go` | `int(RPS) * 5`, min 1 | Token-bucket burst capacity. Derived as `int(RPS)*5` when omitted; clamped to 1 so fractional RPS values never block all traffic. |
 
 Variables marked **required** are validated by `bootstrap.validateConfig` at startup — the process exits before attempting a DB connection if any are missing.
 

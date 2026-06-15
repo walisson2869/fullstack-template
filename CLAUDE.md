@@ -43,8 +43,9 @@ make migrate-version              # print current schema version
 3. **Migrate** — if the feature needs new or changed tables: `make migrate-create name=<slug>`, write the SQL, `make migrate-up`
 4. **Write tests first (TDD)** — write failing tests that describe the intended behaviour before writing any implementation code
 5. **Implement** — delegate to `backend` or `web` agent, passing the relevant doc content as context; implementation is complete when all tests pass
-6. **Update docs** — delegate to `docs` agent: update `last_verified`, add new topics if introduced
-7. **Quality gate** — run `/project:check` before declaring done
+6. **Env vars** — if any new env vars were added to `loadConfig()`, add them to `backend/.env.example` with a safe placeholder value and a comment explaining the format
+7. **Update docs** — delegate to `docs` agent: update `last_verified`, add new topics if introduced
+8. **Quality gate** — run `/project:check` before declaring done
 
 Use `/project:implement` to run this workflow end-to-end.
 
@@ -199,3 +200,4 @@ cd backend && make swagger   # regenerate docs/swagger/ after annotation changes
 - No database mocks in tests.
 - No `any` in TypeScript.
 - **No new feature without tests.** Every new route, component, utility function, use case, and Composable must ship with tests.
+- **Every new env var must appear in `backend/.env.example`** with a safe placeholder value and a comment. Never leave a new `loadConfig()` variable undocumented in the example file.
