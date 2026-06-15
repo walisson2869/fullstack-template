@@ -91,6 +91,44 @@
                     }
                 }
             }
+        },
+        "/ws": {
+            "get": {
+                "description": "Upgrades HTTP to WebSocket. Pass a Firebase ID token as `?token=\u003ctoken\u003e`. Returns 401 when the token is missing or invalid.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "websocket"
+                ],
+                "summary": "Open a WebSocket connection",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Firebase ID token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "101": {
+                        "description": "Switching Protocols",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

@@ -97,6 +97,32 @@ paths:
       summary: Health check
       tags:
       - ops
+  /ws:
+    get:
+      description: Upgrades HTTP to WebSocket. Pass a Firebase ID token as `?token=<token>`.
+        Returns 401 when the token is missing or invalid.
+      parameters:
+      - description: Firebase ID token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "101":
+          description: Switching Protocols
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Open a WebSocket connection
+      tags:
+      - websocket
 securityDefinitions:
   BearerAuth:
     description: Firebase ID token — prefix with "Bearer "
