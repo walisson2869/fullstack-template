@@ -1,11 +1,13 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
 
 	"backend/internal/bootstrap"
 	"backend/internal/infrastructure/database/postgres"
@@ -30,6 +32,17 @@ func NewServer(app *bootstrap.App, hub *ws.Hub) *http.Server {
 	healthRepo := postgres.NewHealthRepository(app.DB)
 	healthUC := usecase.NewHealthUseCase(healthRepo)
 	h := handlers.NewHandler(healthUC, app.Firebase, hub)
+
+	// Register DB pool metrics collector.
+	// AlreadyRegisteredError is silenced — only the first registration wins
+	// (safe for test suites that call NewServer more than once).
+	dbCollector := postgres.NewDBStatsCollector(app.DB)
+	if err := prometheus.Register(dbCollector); err != nil {
+		var are prometheus.AlreadyRegisteredError
+		if !errors.As(err, &are) {
+			app.Log.Warn("server: failed to register db metrics collector", "err", err)
+		}
+	}
 
 	return &http.Server{
 		Addr:         fmt.Sprintf(":%d", app.Config.Port),
