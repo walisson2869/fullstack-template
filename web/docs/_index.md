@@ -11,3 +11,4 @@ The `docs` agent reads this index first to locate the right file.
 | Component conventions | [components.md](components.md) | `app/` (all component files) |
 | Testing patterns | [testing.md](testing.md) | `vitest.config.ts`, `vitest.setup.ts`, `__tests__/page.test.tsx` |
 | Observability (Sentry error tracking) | [observability.md](observability.md) | `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, `next.config.ts`, `.env.example` |
+| WebSocket hook (useWebSocket, reconnect, auth) | [websocket.md](websocket.md) | `lib/useWebSocket.ts`, `lib/useWebSocket.test.ts` |

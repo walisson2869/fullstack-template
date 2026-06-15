@@ -16,16 +16,18 @@ sources:
 
 ## Handler struct
 ```go
-// internal/handler/handler.go
+// internal/transport/handlers/handler.go
 type Handler struct {
     healthUC usecase.HealthUseCase
+    verifier usecase.FirebaseTokenVerifier  // nil disables auth (dev only)
+    hub      *ws.Hub
 }
 
-func NewHandler(healthUC usecase.HealthUseCase) *Handler {
-    return &Handler{healthUC: healthUC}
+func NewHandler(healthUC usecase.HealthUseCase, verifier usecase.FirebaseTokenVerifier, hub *ws.Hub) *Handler {
+    return &Handler{healthUC: healthUC, verifier: verifier, hub: hub}
 }
 ```
-The `Handler` struct holds use case interfaces — not `*sql.DB` directly. Add new use case fields here as features are added.
+The `Handler` struct holds use case interfaces and infrastructure dependencies — not `*sql.DB` directly. `verifier` is stored on the struct (not passed to `RegisterRoutes`) so the WebSocket handler can read it inline for query-param auth.
 
 ## Wiring (server.go)
 `internal/server/server.go` contains `NewServer(app *bootstrap.App) *http.Server` — wiring only, no logic.
@@ -34,11 +36,11 @@ It receives the already-validated `*bootstrap.App` (which holds `*sql.DB`, `Cach
 ```go
 healthRepo := postgres.NewHealthRepository(app.DB)
 healthUC := usecase.NewHealthUseCase(healthRepo)
-h := handlers.NewHandler(healthUC)
+h := handlers.NewHandler(healthUC, app.Firebase, hub)
 
 return &http.Server{
     Addr:         fmt.Sprintf(":%d", app.Config.Port),
-    Handler:      h.RegisterRoutes(app.Config.RateLimitRPS, app.Config.RateLimitBurst, app.Firebase, app.Config.SentryDSN),
+    Handler:      h.RegisterRoutes(app.Config.RateLimitRPS, app.Config.RateLimitBurst, app.Config.SentryDSN),
     IdleTimeout:  time.Minute,
     ReadTimeout:  10 * time.Second,
     WriteTimeout: 30 * time.Second,
@@ -51,7 +53,7 @@ All routes registered in `RegisterRoutes()` on `*Handler`, which returns `http.H
 `verifier` is a `usecase.FirebaseTokenVerifier`; pass `nil` to skip Firebase auth (development only — see [auth](auth.md)).
 
 ```go
-func (h *Handler) RegisterRoutes(rps float64, burst int, verifier usecase.FirebaseTokenVerifier, sentryDSN string) http.Handler {
+func (h *Handler) RegisterRoutes(rps float64, burst int, sentryDSN string) http.Handler {
     r := gin.New()
 
     // Gin's colorful logger locally; structured slog logger in staging/production.
@@ -67,11 +69,13 @@ func (h *Handler) RegisterRoutes(rps float64, burst int, verifier usecase.Fireba
 
     r.GET("/", h.HelloWorldHandler)
     r.GET("/health", h.HealthHandler)
+    r.GET("/ws", h.WsHandler)          // WebSocket upgrade — auth via ?token= query param
+
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
     api := r.Group("/api/v1")
-    if verifier != nil {
-        api.Use(middleware.FirebaseAuth(verifier))
+    if h.verifier != nil {
+        api.Use(middleware.FirebaseAuth(h.verifier))
     }
     api.GET("/me", h.MeHandler)
 
@@ -104,7 +108,8 @@ Allowed methods: GET, POST, PUT, DELETE, OPTIONS, PATCH.
 |---|---|---|---|---|
 | GET | `/` | none | `HelloWorldHandler` — returns `{"message": "Hello World"}` | `hello_handler.go` |
 | GET | `/health` | none | `HealthHandler` — returns `HealthStats`; 503 when DB is down | `health_handler.go` |
-| GET | `/api/v1/me` | FirebaseAuth | `MeHandler` — returns verified `FirebaseToken` claims | `auth_handler.go` |
+| GET | `/ws` | `?token=` query param | `WsHandler` — upgrades to WebSocket; 401 when token missing/invalid | `ws_handler.go` |
+| GET | `/api/v1/me` | FirebaseAuth header | `MeHandler` — returns verified `FirebaseToken` claims | `auth_handler.go` |
 
 ## Graceful shutdown
 Wired in `cmd/api/main.go` via `signal.NotifyContext` for SIGINT/SIGTERM.

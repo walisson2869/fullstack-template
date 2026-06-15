@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"backend/internal/bootstrap"
+	"backend/internal/infrastructure/ws"
 	"backend/internal/server"
 )
 
@@ -55,7 +56,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	srv := server.NewServer(app)
+	hubCtx, hubCancel := context.WithCancel(context.Background())
+	hub := ws.NewHub()
+	go hub.Run(hubCtx)
+
+	srv := server.NewServer(app, hub)
 	slog.Info("API docs", "url", fmt.Sprintf("http://localhost%s/swagger/index.html", srv.Addr))
 
 	done := make(chan bool, 1)
@@ -66,6 +71,8 @@ func main() {
 	}
 
 	<-done
+	hubCancel() // stop hub after all WS connections have been closed by server shutdown
+
 	if app.Cache != nil {
 		if err := app.Cache.Close(); err != nil {
 			slog.Error("cache close error", "error", err)

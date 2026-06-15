@@ -9,12 +9,13 @@ import (
 
 	"backend/internal/bootstrap"
 	"backend/internal/infrastructure/database/postgres"
+	"backend/internal/infrastructure/ws"
 	"backend/internal/transport/handlers"
 	"backend/internal/usecase"
 )
 
 // NewServer wires all layers and returns a configured *http.Server.
-func NewServer(app *bootstrap.App) *http.Server {
+func NewServer(app *bootstrap.App, hub *ws.Hub) *http.Server {
 	switch app.Config.Env {
 	case "staging", "production":
 		gin.SetMode(gin.ReleaseMode)
@@ -28,11 +29,11 @@ func NewServer(app *bootstrap.App) *http.Server {
 
 	healthRepo := postgres.NewHealthRepository(app.DB)
 	healthUC := usecase.NewHealthUseCase(healthRepo)
-	h := handlers.NewHandler(healthUC)
+	h := handlers.NewHandler(healthUC, app.Firebase, hub)
 
 	return &http.Server{
 		Addr:         fmt.Sprintf(":%d", app.Config.Port),
-		Handler:      h.RegisterRoutes(app.Config.RateLimitRPS, app.Config.RateLimitBurst, app.Firebase, app.Config.SentryDSN),
+		Handler:      h.RegisterRoutes(app.Config.RateLimitRPS, app.Config.RateLimitBurst, app.Config.SentryDSN),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
