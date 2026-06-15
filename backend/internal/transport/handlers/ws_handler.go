@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -12,8 +13,18 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	// TODO: restrict to known origins in production.
-	CheckOrigin: func(r *http.Request) bool { return true },
+	// In debug mode (local dev) all origins are allowed so browsers can connect
+	// from any port. In staging/production, restrict to BLUEPRINT_WS_ALLOWED_ORIGIN.
+	CheckOrigin: func(r *http.Request) bool {
+		if gin.IsDebugging() {
+			return true
+		}
+		allowed := os.Getenv("BLUEPRINT_WS_ALLOWED_ORIGIN")
+		if allowed == "" {
+			return false
+		}
+		return r.Header.Get("Origin") == allowed
+	},
 }
 
 // WsHandler godoc

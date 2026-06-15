@@ -38,11 +38,18 @@ func NewClient(hub *Hub, conn *websocket.Conn) *Client {
 // It unregisters the client and closes the connection when done.
 func (c *Client) ReadPump() {
 	defer func() {
-		c.hub.Unregister <- c
+		// Non-blocking: if Hub.Run has already exited (ctx cancelled) there is no
+		// receiver on Unregister. The Hub already closed c.Send in that case.
+		select {
+		case c.hub.Unregister <- c:
+		default:
+		}
 		c.conn.Close()
 	}()
 	c.conn.SetReadLimit(maxMessageSize)
-	c.conn.SetReadDeadline(time.Now().Add(pongWait)) //nolint:errcheck
+	if err := c.conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+		return
+	}
 	c.conn.SetPongHandler(func(string) error {
 		return c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	})
@@ -68,26 +75,36 @@ func (c *Client) WritePump() {
 	for {
 		select {
 		case msg, ok := <-c.Send:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait)) //nolint:errcheck
+			if err := c.conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				return
+			}
 			if !ok {
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{}) //nolint:errcheck
+				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
 			}
-			w.Write(msg) //nolint:errcheck
+			if _, err := w.Write(msg); err != nil {
+				return
+			}
 			// Drain any queued messages into the same WebSocket frame.
 			for i := len(c.Send); i > 0; i-- {
-				w.Write([]byte{'\n'}) //nolint:errcheck
-				w.Write(<-c.Send)     //nolint:errcheck
+				if _, err := w.Write([]byte{'\n'}); err != nil {
+					break
+				}
+				if _, err := w.Write(<-c.Send); err != nil {
+					break
+				}
 			}
 			if err := w.Close(); err != nil {
 				return
 			}
 		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait)) //nolint:errcheck
+			if err := c.conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				return
+			}
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}

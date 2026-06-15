@@ -49,7 +49,9 @@ export function useWebSocket({
     connectRef.current = () => {
       if (unmountedRef.current) return
 
-      const wsUrl = token ? `${url}?token=${encodeURIComponent(token)}` : url
+      const wsUrl = token
+        ? `${url}${url.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`
+        : url
       const ws = new WebSocket(wsUrl)
       wsRef.current = ws
 

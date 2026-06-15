@@ -3,6 +3,7 @@ package ws
 import (
 	"context"
 	"encoding/json"
+	"errors"
 )
 
 // Hub maintains the set of active WebSocket clients and broadcasts messages to them.
@@ -67,6 +68,10 @@ func (h *Hub) Publish(msgType string, payload any) error {
 	if err != nil {
 		return err
 	}
-	h.broadcast <- env
-	return nil
+	select {
+	case h.broadcast <- env:
+		return nil
+	default:
+		return errors.New("ws: broadcast channel full, message dropped")
+	}
 }

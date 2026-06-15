@@ -62,7 +62,7 @@ Each WebSocket connection spawns two goroutines: `ReadPump` and `WritePump` (on 
 The Hub serialises all mutations (register / unregister / broadcast) through a `select` loop
 so no locking is needed on its internal `clients` map.
 
-```
+```text
  caller goroutine
        │  hub.Publish(...)
        ▼
@@ -95,7 +95,7 @@ Ping/pong keepalive: `pingPeriod = 54s`, `pongWait = 60s`, `writeWait = 10s`.
 
 ## Route — GET /ws
 
-```
+```text
 GET /ws?token=<firebase-id-token>
 ```
 

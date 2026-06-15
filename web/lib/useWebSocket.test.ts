@@ -66,6 +66,13 @@ describe('useWebSocket', () => {
     expect(MockWebSocket.instances[0].url).toBe('ws://localhost:8080/ws?token=abc123')
   })
 
+  it('appends token with & when url already has query params', () => {
+    renderHook(() =>
+      useWebSocket({ url: 'ws://localhost:8080/ws?room=1', token: 'abc123' }),
+    )
+    expect(MockWebSocket.instances[0].url).toBe('ws://localhost:8080/ws?room=1&token=abc123')
+  })
+
   it('sets isConnected true after open', () => {
     const { result } = renderHook(() => useWebSocket({ url: 'ws://localhost:8080/ws' }))
     act(() => MockWebSocket.instances[0].simulateOpen())

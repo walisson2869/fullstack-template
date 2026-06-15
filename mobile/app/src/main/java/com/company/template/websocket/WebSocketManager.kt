@@ -44,6 +44,8 @@ class WebSocketManager(
         private set
 
     fun connect(token: String?) {
+        socket?.close(1000, "reconnecting")
+        socket = null
         active = true
         currentToken = token
         retryCount = 0

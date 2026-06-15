@@ -59,7 +59,7 @@ const { isConnected, lastMessage, send } = useWebSocket({
 
 After a disconnect, the hook retries with exponential backoff capped at 30 seconds:
 
-```
+```text
 delay = min(1000ms × 2^retryCount, 30 000ms)
 ```
 
